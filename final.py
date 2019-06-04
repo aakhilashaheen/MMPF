@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
-from torch.distributions.constraints import positive, simplex
+from torch.distributions import Poisson
+from torch.distributions.constraints import positive
 
 import pyro
 import pyro.distributions as dist
@@ -8,6 +9,8 @@ from pyro.infer import config_enumerate, SVI, Trace_ELBO
 from pyro.optim import Adam, Adagrad
 
 # import matplotlib.pyplot as plt
+
+import random
 
 from tqdm import tqdm
 
@@ -300,14 +303,16 @@ hyperparams['num_nonmissing'] = 40
 hyperparams['num_latents'] = 4
 hyperparams['num_contexts'] = 4
 hyperparams['num_context_latents'] = 4
-idx = [(u, i) for u in range(10) for i in range(20)]
-import random
-from torch.distributions import Poisson
-random.shuffle(idx)
-raw_ratings = Poisson(3.).sample((10, 20))
-ratings = [(u, i, raw_ratings[u, i]) for u, i in idx[:40]]
-    
-mmpf = MMPF(hyperparams)
-bpf = BPF(hyperparams)
-mmpf.fit(ratings, num_steps=10000)
-bpf.fit(ratings, num_steps=10000)
+
+def test(hyperparams)
+    idx = [(u, i) for u in range(hyperparam['num_users']) for i in range(hyperparams['num_items'])]
+    random.shuffle(idx)
+    raw_ratings = Poisson(3.).sample((10, 20))
+    ratings = [(u, i, raw_ratings[u, i]) for u, i in idx[:40]]
+        
+    mmpf = MMPF(hyperparams)
+    bpf = BPF(hyperparams)
+    mmpf_losses = mmpf.fit(ratings, num_steps=10000)
+    bpf_losses = bpf.fit(ratings, num_steps=10000)
+
+    return (bpf_losses, mmpf_losses)
